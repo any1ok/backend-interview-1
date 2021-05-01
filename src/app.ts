@@ -1,13 +1,19 @@
+
+import db from './dbms/postgre'
+
+db.sequelize.sync({ force: true });
 const express = require('express');
 const cookieParser = require('cookie-parser');
 
 const api = require('./router');
 
 const app = express();
-
+db.sequelize.sync({ force: true });
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(require(`${__dirname}/middleware/jwtAuth`));
+
 
 app.use('/api', api);
 
