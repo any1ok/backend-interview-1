@@ -6,11 +6,11 @@ import * as _ from 'lodash';
 
 export class UserController {
     async signup(req: Request, res: Response, next: NextFunction) {
-        const name = _.defaultTo(req.body.name, null);
-        const user_id = _.defaultTo(req.body.user_id, null);
-        const email = _.defaultTo(req.body.email, null);
-        const pass = _.defaultTo(req.body.pass, null);
-        const userType = _.defaultTo(req.body.userType, null);
+        const name = _.defaultTo(String(req.body.name), null);
+        const user_id = _.defaultTo(String(req.body.user_id), null);
+        const email = _.defaultTo(String(req.body.email), null);
+        const pass = _.defaultTo(String(req.body.pass), null);
+        const user_type = _.defaultTo(String(req.body.user_type), null);
 
         if (name == null) {
             res.status(406).send({ success_yn: false, msg: "닉네임을 입력해주세요" });
@@ -28,8 +28,8 @@ export class UserController {
             res.status(406).send({ success_yn: false, msg: "이메일을 입력해주세요" });
             return;
         }
-        if (userType == "ADMIN" || userType == "USER") {
-            res.status(406).send({ success_yn: false, msg: "이메일을 입력해주세요" });
+        if (!(user_type == "ADMIN" || user_type == "USER")) {
+            res.status(406).send({ success_yn: false, msg: "유저타입을 입력해주세요" });
             return;
         }
 
@@ -48,8 +48,7 @@ export class UserController {
                     pass,
                     name,
                     email,
-                    userType,
-                    joinDt: BigInt(Date.now())
+                    user_type,
                 })
             );
 
@@ -77,15 +76,15 @@ export class UserController {
 
         try {
             const userService = new UserService();
-            const data_AlreadyUser = await userService.existUser(user_id);
-            console.log()
-            if (data_AlreadyUser.length == 0) {
+            const user_data = await userService.login(user_id, pass);
+            if (!user_data) {
                 res.status(406).send({ success_yn: false, msg: "nonexist user" });
                 return;
             }
-            var uuid = _.get(data_AlreadyUser, 'dataValues.uuid')
+            console.log(user_data);
 
-            var accessToken = getToken(uuid, "asdf", 1000 * 60 * 60 * 2);
+            console.log(user_data.uuid);
+            var accessToken = getToken(user_data.uuid, "asdf", 1000 * 60 * 60 * 2);
 
             res.json({ success_yn: true, msg: "success", accessToken });
         } catch (error) {
@@ -96,27 +95,22 @@ export class UserController {
     }
 
     async userinfo(req: Request, res: Response, next: NextFunction) {
-        const user_no = _.defaultTo(req.body.user_no, null);
-
+        const user_no = BigInt(req.userItem.user_no)
         if (user_no == null) {
-            res.status(403).send({ success_yn: false, msg: "bad param" });
+            res.status(403).send({ success_yn: false, msg: "non auth" });
             return;
         }
-
-
 
         try {
             const userService = new UserService();
             const query_data = await userService.getUserDataByUserNo(user_no);
             console.log()
-            if (query_data.length == 0) {
+            if (!query_data) {
                 res.status(406).send({ success_yn: false, msg: "nonexist user" });
                 return;
             }
 
-
-            console.log(_.get(query_data[0], 'dataValues'));
-            var data = _.get(query_data[0], 'dataValues')
+            var data = query_data;
             res.json({ success_yn: true, msg: "success", data });
         } catch (error) {
             res.status(403).send({ success_yn: false, error: error });
@@ -126,14 +120,11 @@ export class UserController {
     }
 
     async userlist(req: Request, res: Response, next: NextFunction) {
-        const user_no = _.defaultTo(req.body.user_no, null);
-
-        if (user_no == null) {
-            res.status(403).send({ success_yn: false, msg: "bad param" });
+        const user_type = String(req.userItem.user_type)
+        if (user_type != "ADMIN") {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
             return;
         }
-
-
 
         try {
             const userService = new UserService();
@@ -149,8 +140,11 @@ export class UserController {
     }
 
     async withdrawal(req: Request, res: Response, next: NextFunction) {
-        const user_no = _.defaultTo(req.body.user_no, null);
-
+        const user_no = BigInt(req.userItem.user_no)
+        if (user_no == null) {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
+        }
 
         try {
             const userService = new UserService();

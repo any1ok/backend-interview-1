@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PRODUCT">  
+  <select id="productlist.SELECT">
+    SELECT
+    row_number() over(order by ${sort_type}) as no ,
+    PRODUCT_NO,
+    product_nm,
+    product_detail,
+    price,
+    brand,
+    size,
+    color,
+    join_dt, 
+    COUNT(*) OVER() AS TOTAL_CNT 
+    FROM
+        "Products" 
+    WHERE
+        1 = 1
+        and use_yn = true
+    <if test = "search_text != null">
+        and ${search_filter} like #{search_text}
+    </if> 
+    order by ${sort_type}
+    limit #{limit} offset #{offset}
+  </select>
+</mapper>

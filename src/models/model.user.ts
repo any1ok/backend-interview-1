@@ -51,12 +51,12 @@ export class User extends Model {
     @Comment("사용자 타입")
     @AllowNull(false)
     @Column
-    userType: string;
+    user_type: string;
 
     @Comment("가입일자")
     @AllowNull(false)
     @Column
-    joinDt: bigint;
+    join_dt: bigint;
 
     @CreatedAt
     created: Date;

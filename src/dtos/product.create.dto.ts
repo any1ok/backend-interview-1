@@ -9,7 +9,7 @@ export class ProductCreateDto {
         brand: string;
         size: string;
         color: string;
-        joinDt: bigint;
+        join_dt: bigint;
     }) {
         this.user_no = value.user_no
         this.product_nm = value.product_nm;
@@ -18,7 +18,7 @@ export class ProductCreateDto {
         this.brand = value.brand;
         this.size = value.size;
         this.color = value.color;
-        this.joinDt = value.joinDt;
+        this.join_dt = value.join_dt;
     }
 
     user_no: bigint;
@@ -28,7 +28,7 @@ export class ProductCreateDto {
     brand: string;
     size: string;
     color: string;
-    joinDt: bigint;
+    join_dt: bigint;
 
 
 }

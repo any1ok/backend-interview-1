@@ -4,16 +4,24 @@ import * as _ from 'lodash';
 
 export class ProductController {
 
-
+    //상품만들기
     async insertProduct(req: Request, res: Response, next: NextFunction) {
-
-        const user_no = _.get(req, 'user_no');
-        const product_nm = _.defaultTo(req.body.product_nm, null);
-        const price = _.defaultTo(req.body.price, null);
-        const product_detail = _.defaultTo(req.body.product_detail, null);
-        const brand = _.defaultTo(req.body.brand, null);
-        const size = _.defaultTo(req.body.size, null);
-        const color = _.defaultTo(req.body.color, null);
+        const user_no = BigInt(req.userItem.user_no)
+        const user_type = String(req.userItem.user_type)
+        if (user_no == null) {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
+        }
+        if (user_type != "ADMIN") {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
+        }
+        const product_nm = _.defaultTo(String(req.body.product_nm), null);
+        const price = _.defaultTo(BigInt(req.body.price), null);
+        const product_detail = _.defaultTo(String(req.body.product_detail), null);
+        const brand = _.defaultTo(String(req.body.brand), null);
+        const size = _.defaultTo(String(req.body.size), null);
+        const color = _.defaultTo(String(req.body.color), null);
 
         if (product_nm == null || price == null || product_detail == null || product_nm == null || brand == null || size == null || color == null) {
             res.status(406).send({ success_yn: false, msg: "bad param" });
@@ -31,7 +39,7 @@ export class ProductController {
                 brand,
                 size,
                 color,
-                joinDt: BigInt(Date.now())
+                join_dt: BigInt(Date.now())
             });
 
             res.json({ success_yn: true, msg: "success" });
@@ -41,17 +49,20 @@ export class ProductController {
             return;
         }
     }
-
+    //상품수정
     async updateProduct(req: Request, res: Response, next: NextFunction) {
-
-        const user_no = _.get(req, 'user_no');
-        const product_no = _.defaultTo(req.body.product_no, null);
-        const product_nm = _.defaultTo(req.body.product_nm, null);
-        const price = _.defaultTo(req.body.price, null);
-        const product_detail = _.defaultTo(req.body.product_detail, null);
-        const brand = _.defaultTo(req.body.brand, null);
-        const size = _.defaultTo(req.body.size, null);
-        const color = _.defaultTo(req.body.color, null);
+        const user_no = BigInt(req.userItem.user_no)
+        if (user_no == null) {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
+        }
+        const product_no = BigInt(req.params.id);
+        const product_nm = _.defaultTo(String(req.body.product_nm), null);
+        const price = _.defaultTo(BigInt(req.body.price), null);
+        const product_detail = _.defaultTo(String(req.body.product_detail), null);
+        const brand = _.defaultTo(String(req.body.brand), null);
+        const size = _.defaultTo(String(req.body.size), null);
+        const color = _.defaultTo(String(req.body.color), null);
 
         if (product_nm == null || price == null || product_detail == null || product_nm == null || brand == null || size == null || color == null) {
             res.status(406).send({ success_yn: false, msg: "bad param" });
@@ -61,12 +72,12 @@ export class ProductController {
         try {
             const productService = new ProductService();
 
-            const product = await productService.updateProduct({
+            await productService.updateProduct({
                 user_no,
                 product_nm,
-                price,
                 product_detail,
                 brand,
+                price,
                 size,
                 color,
                 product_no
@@ -79,8 +90,13 @@ export class ProductController {
             return;
         }
     }
-
+    // 상품 디테일
     async getProduct(req: Request, res: Response, next: NextFunction) {
+        const user_no = BigInt(req.userItem.user_no)
+        if (user_no == null) {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
+        }
         const product_no = BigInt(req.params.id);
 
         try {
@@ -95,9 +111,14 @@ export class ProductController {
             return;
         }
     }
-
+    //  상품삭제
     async deleteProduct(req: Request, res: Response, next: NextFunction) {
-        const product_no = _.defaultTo(BigInt(req.params.id), null);
+        const user_type = String(req.userItem.user_type)
+        if (user_type != "ADMIN") {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
+        }
+        const product_no = BigInt(req.params.id);
 
         try {
             const productService = new ProductService();
@@ -112,102 +133,71 @@ export class ProductController {
         }
     }
 
-    //찜(좋아요)
-    async Heart(req: Request, res: Response, _next: NextFunction) {
-        const product_no = _.defaultTo(BigInt(req.params.id), null);
-
-
-        const user_no = BigInt((_.get(req, 'user_no')));
+    //좋아요
+    async heart(req: Request, res: Response, _next: NextFunction) {
+        const user_no = BigInt(req.userItem.user_no)
+        if (user_no == null) {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
+        }
+        const product_no = BigInt(req.params.id);
 
         try {
             const dibsService = new ProductService();
 
             await dibsService.heartYn(user_no, product_no);
 
-            res.json({
-                success: true,
-                message: "성공",
-            });
+            res.json({ success_yn: true, msg: "success", });
         } catch (error) {
-            console.error(error);
-            res.status(500).json({
-                success: false,
-                message: "서버 오류",
-                error: JSON.stringify(error),
-            });
+            res.status(403).send({ success_yn: false, error: error });
+            console.log("query: error", error);
+            return;
         }
     }
 
-
-
     //상품 목록 조회
-    async findList(req: Request, res: Response, _next: NextFunction) {
-        const user_no = BigInt((_.get(req, 'user_no')));
-
-        let order: "dibsCount" | "reviewCount" | "name" | "createdAt";
-
-        switch (String(req.query.order)) {
-            case "dibsCount":
-                order = "dibsCount";
-                break;
-            case "reviewCount":
-                order = "reviewCount";
-                break;
-            case "name":
-                order = "name";
-                break;
-            case "createdAt":
-                order = "createdAt";
-                break;
-            default:
-                order = "dibsCount";
+    async productList(req: Request, res: Response, _next: NextFunction) {
+        const user_no = BigInt(req.userItem.user_no)
+        if (user_no == null) {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
         }
+        var search_filter = _.defaultTo(String(req.query.search_filter), null);
+        var search_text = _.defaultTo(String(req.query.search_text), null);
+        if (search_text != null) {
+            search_text = '%' + search_text + '%'
+        }
+        var sort_type = _.defaultTo(String(req.query.sort_type), null);
+        var page = _.defaultTo(Number(req.query.page), 1);
+        var limit = _.defaultTo(Number(req.query.limit), 10);
+        var offset = limit * (page - 1)
 
-        const dibs =
-            req.query.dibs === undefined ? null : req.query.dibs == "true";
-        const searchText = (req.query.searchText as string) ?? null;
-        const starMin =
-            req.query.starMin === undefined ? null : Number(req.query.starMin);
-        const starMax =
-            req.query.starMin === undefined ? null : Number(req.query.starMax);
-        const brand = (req.query.brand as string) ?? null;
-        const asc = req.query.asc === "true";
-        const page = req.query.page === undefined ? 1 : Number(req.query.page);
-        const limit =
-            req.query.limit === undefined ? 10 : Number(req.query.limit);
-        const offset = (page - 1) * limit;
 
-        const userId = req.authUser?.id ?? null;
+        if (!(sort_type == 'price' || sort_type == "product_nm" || sort_type == "join_dt")) {
+            res.status(406).send({ success_yn: false, msg: "bad param" });
+            return;
+        }
+        if (!(search_filter == 'color' || search_filter == "product_nm" || search_filter == "size")) {
+            res.status(406).send({ success_yn: false, msg: "bad param" });
+            return;
+        }
 
         try {
             const productService = new ProductService();
 
-            const { list, total_count } = await productService.findList({
-                order,
-                asc,
+            const data = await productService.productList({
+                search_filter,
+                search_text,
+                sort_type,
                 limit,
                 offset,
-                searchText,
-                starMin,
-                starMax,
-                brand,
-                userId,
-                dibs,
             });
 
-            res.json({
-                success: true,
-                list,
-                total_count,
-                message: "성공",
-            });
+            res.json({ success_yn: true, msg: "success", data });
         } catch (error) {
-            console.error(error);
-            res.status(500).json({
-                success: false,
-                message: "서버 오류",
-                error: JSON.stringify(error),
-            });
+            res.status(403).send({ success_yn: false, error: error });
+            console.log("query: error", error);
+            return;
         }
     }
 

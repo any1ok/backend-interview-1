@@ -1,19 +1,19 @@
 import Router from "express-promise-router";
-import { UserController } from "../controllers/user.controller";
+import { ProductController } from "../controllers/product.controller";
 
 const router = Router()
 
-const controller = new UserController();
-/*
-router.post("/insertproduct", controller.insertporduct);
-router.get("/product/:id", controller.getproduct);
-router.put("/product/:id", controller.updateproduct);
-router.delete("/product/:id", controller.deleteproduct);
-router.get("/product-list", controller.findList);
+const controller = new ProductController();
+
+router.post("/insertproduct", controller.insertProduct);
+router.get("/getproduct/:id", controller.getProduct);
+router.put("/updateproduct/:id", controller.updateProduct);
+router.delete("/deleteproduct/:id", controller.deleteProduct);
+router.get("/product-list", controller.productList);
 
 router.post("/product/:id/heart", controller.heart);
 
-*/
+
 
 
 module.exports = router;

@@ -61,11 +61,11 @@ export class Product extends Model {
     @Comment("등록일자")
     @AllowNull(false)
     @Column
-    joinDt: bigint;
+    join_dt: bigint;
 
     @Comment("사용여부(논리적 삭제)")
     @AllowNull(false)
     @Default(true)
     @Column
-    useYn: boolean;
+    use_yn: boolean;
 }

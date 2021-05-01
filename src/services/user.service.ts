@@ -13,18 +13,22 @@ export class UserService {
     }
 
     async getUserDataByUserNo(user_no: bigint) {
-        return await User.findAll({ where: { user_no, userStatus: 0 } });
+        return await User.findOne({ where: { user_no, userStatus: 0 } });
     }
     async getUserAll() {
         return await User.findAll({ where: { userStatus: 0 } });
     }
 
     async findUserDataByUUID(uuid: string) {
-        return await User.findAll({ where: { uuid, userStatus: 0 } });
+        return await User.findOne({ where: { uuid, userStatus: 0 } });
     }
 
     async existUser(user_id: string) {
         return await User.findAll({ where: { user_id } });
+
+    }
+    async login(user_id: string, pass: string) {
+        return await User.findOne({ where: { user_id, pass } });
 
     }
 }

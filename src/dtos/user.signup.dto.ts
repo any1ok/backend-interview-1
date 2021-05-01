@@ -1,4 +1,4 @@
-//import { passwordHashing } from "../lib/password";
+
 import { uuid } from "uuidv4";
 
 export class UserCreateDto {
@@ -7,16 +7,15 @@ export class UserCreateDto {
         pass: string;
         name: string;
         email: string;
-        userType: string;
-        joinDt: bigint;
+        user_type: string;
     }) {
         this.name = value.name;
         this.user_id = value.user_id
         this.email = value.email;
-        this.userType = value.userType;
+        this.user_type = value.user_type;
         this.uuid = uuid();
         this.pass = value.pass;
-        this.joinDt = value.joinDt;
+        this.join_dt = BigInt(Date.now());
     }
 
     user_id: string;
@@ -24,6 +23,6 @@ export class UserCreateDto {
     uuid: string;
     name: string;
     email: string;
-    userType: string;
-    joinDt: bigint;
+    user_type: string;
+    join_dt: bigint;
 }

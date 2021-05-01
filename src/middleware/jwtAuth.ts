@@ -152,7 +152,8 @@ const isAuthenticated = async function (
         }
         else {
             //decodedWithHeader = jwt.decode(req.headers.authorization, { complete: true });
-            decoded = jwt.verify(getToken(), "asdf");
+
+            decoded = jwt.verify(req.headers.authorization, "asdf");
 
             //console.log(decodedWithHeader);
             console.log("decoded", decoded);
@@ -190,8 +191,9 @@ const isAuthenticated = async function (
             */
             const userService = new UserService();
             const userInfo = await userService.findUserDataByUUID(user_id);
-            req = _.get(userInfo[0], 'dataValues')
-
+            console.log("dddd", userInfo);
+            req.userItem = userInfo;
+            console.log("tttt", req.userItem);
         }
     } catch (err) {
         console.log(err);
