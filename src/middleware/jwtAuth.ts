@@ -18,49 +18,19 @@ const getToken = (user_id = "dddd", privateKey = "asdf", expiresIn = 1000 * 60 *
 
 
 
-/*
-const tokenRefresh = (key_id, token, expiresIn) => {
-    const tokenGen = new TokenGenerator(
-        keyData.privateKey,
-        keyData.publicKey,
-        {
-            algorithm: "HS256",
-            keyid: key_id,
-            noTimestamp: false,
-        }
-    );
-
-    return tokenGen.refresh(
-        token,
-        {
-            verify: { audience: "myaud", issuer: "myissuer", expiresIn },
-            jwtid: key_id,
-        }
-    );
-};
-*/
-
 
 
 const isAuthenticated = async function (
     req: Request,
     res: Response,
     next: NextFunction) {
-    // res.header('Access-Control-Allow-Origin', '*');
-    // res.header('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE');
-    // res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
-    // res.header('Access-Control-Allow-Credentials', true);
 
     console.log('>>>>>>>>>>>>>>>>>>> req.path : ' + req.path);
 
     const exclude1 = () => {
         return req.method == "GET" && req.path == "/";
     };
-    /* swagger
-    const exclude5 = () => {
-        return req.method == "GET" && req.path.indexOf("/api-docs") == 0;
-    };
-    */
+
     const excludeAuthCheck = () => {
         console.log(">>>>>>>>>>>>>>>>>>> excludeAuthCheck");
         return req.path.indexOf("NA-") != -1;
@@ -72,8 +42,7 @@ const isAuthenticated = async function (
         return req.path == "/v1/AUTH_REFRESH";
     };
 
-    //let decodedWithHeader;
-    //let decodedHeader;
+
     let decoded;
 
     if (excludeRefresh()) {
@@ -140,61 +109,49 @@ const isAuthenticated = async function (
             return;
         }
 
-        const isVisitor = req.headers.authorization === "VISITOR";
 
-        if (isVisitor) {
-            // req.user_id = decoded.sub;
+        decoded = jwt.verify(req.headers.authorization, "asdf");
 
-            // req.user_email = userInfo.Item.USER_EMAIL.toLowerCase();
-            // req.user_no = userInfo.Item.USER_NO;
-            // req.signup_cd_id = userInfo.Item.SIGNUP_CD_ID;
-            // req.mobile_no = userInfo.Item.MOBILE_NO;
+
+        console.log("decoded", decoded);
+
+
+        const user_id = decoded.sub;
+        console.log(Date.now());
+        console.log(decoded.exp);
+
+        if (Date.now() > decoded.exp) {
+            res.status(401).send({ msg: "expired", code: "ACCESS_TOKEN_EXPIRED" });
+            return;
         }
-        else {
-            //decodedWithHeader = jwt.decode(req.headers.authorization, { complete: true });
+        /* dynamo
+        const pk = user_id;
+        const sk = "USER_INFO";
 
-            decoded = jwt.verify(req.headers.authorization, "asdf");
-
-            //console.log(decodedWithHeader);
-            console.log("decoded", decoded);
-            //console.log(decodedHeader);
-
-            const user_id = decoded.sub;
-            console.log(Date.now());
-            console.log(decoded.exp);
-
-            if (Date.now() > decoded.exp) {
-                res.status(401).send({ msg: "expired", code: "ACCESS_TOKEN_EXPIRED" });
-                return;
+        let params = {
+            TableName: "PK-S-SK-S",
+            Key: {
+                "PK": pk,
+                "SK": sk
             }
-            /* dynamo
-            const pk = user_id;
-            const sk = "USER_INFO";
-
-            let params = {
-                TableName: "PK-S-SK-S",
-                Key: {
-                    "PK": pk,
-                    "SK": sk
-                }
-            }
-
-            let userInfo = await docClient.get(params).promise();
-
-            if (decodedHeader.kid !== userInfo.Item.TOKEN_KEY) {
-                res.status(401).send({ msg: "expired", code: "ACCESS_TOKEN_EXPIRED" });
-                return;
-            }
-
-            // console.log(userInfo);
-            console.log(userInfo.Item);
-            */
-            const userService = new UserService();
-            const userInfo = await userService.findUserDataByUUID(user_id);
-            console.log("dddd", userInfo);
-            req.userItem = userInfo;
-            console.log("tttt", req.userItem);
         }
+
+        let userInfo = await docClient.get(params).promise();
+
+        if (decodedHeader.kid !== userInfo.Item.TOKEN_KEY) {
+            res.status(401).send({ msg: "expired", code: "ACCESS_TOKEN_EXPIRED" });
+            return;
+        }
+
+        // console.log(userInfo);
+        console.log(userInfo.Item);
+        */
+        const userService = new UserService();
+        const userInfo = await userService.findUserDataByUUID(user_id);
+
+        req.userItem = userInfo;
+
+
     } catch (err) {
         console.log(err);
         if (err !== undefined && err !== null) {
