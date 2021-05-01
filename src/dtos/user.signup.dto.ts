@@ -8,6 +8,7 @@ export class UserCreateDto {
         name: string;
         email: string;
         userType: string;
+        joinDt: bigint;
     }) {
         this.name = value.name;
         this.user_id = value.user_id
@@ -15,7 +16,7 @@ export class UserCreateDto {
         this.userType = value.userType;
         this.uuid = uuid();
         this.pass = value.pass;
-        this.joinDt = BigInt(Date.now());
+        this.joinDt = value.joinDt;
     }
 
     user_id: string;

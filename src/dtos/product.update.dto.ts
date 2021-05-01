@@ -1,11 +1,10 @@
-import { passwordHashing } from "../lib/password";
-import { uuid } from "uuidv4";
 
 export class ProductUpdateDto {
-    id: bigint;
-    writerId: bigint;
-    name: string;
-    description: string;
+    product_no: bigint;
+    user_no: bigint;
+    product_nm: string;
+    price: bigint;
+    product_detail: string;
     brand: string;
     size: string;
     color: string;

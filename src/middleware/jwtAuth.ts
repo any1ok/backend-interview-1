@@ -1,6 +1,7 @@
 import * as jwt from "jsonwebtoken";
 import { UserService } from "../services/user.service";
-
+import { NextFunction, Request, Response } from "express";
+import * as _ from 'lodash';
 const getToken = (user_id = "dddd", privateKey = "asdf", expiresIn = 1000 * 60 * 60) => {
 
     return jwt.sign(
@@ -41,7 +42,10 @@ const tokenRefresh = (key_id, token, expiresIn) => {
 
 
 
-const isAuthenticated = async function (req, res, next) {
+const isAuthenticated = async function (
+    req: Request,
+    res: Response,
+    next: NextFunction) {
     // res.header('Access-Control-Allow-Origin', '*');
     // res.header('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE');
     // res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
@@ -137,7 +141,6 @@ const isAuthenticated = async function (req, res, next) {
         }
 
         const isVisitor = req.headers.authorization === "VISITOR";
-        req.isVisitor = isVisitor;
 
         if (isVisitor) {
             // req.user_id = decoded.sub;
@@ -187,9 +190,8 @@ const isAuthenticated = async function (req, res, next) {
             */
             const userService = new UserService();
             const userInfo = await userService.findUserDataByUUID(user_id);
+            req = _.get(userInfo[0], 'dataValues')
 
-            req.user_item = userInfo;
-            console.log(req.user_item);
         }
     } catch (err) {
         console.log(err);

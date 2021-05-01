@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { UserCreateDto } from "../dtos/user.signup.dto";
 import { UserService } from "../services/user.service";
 import { getToken } from "../lib/getToken"
 import * as _ from 'lodash';
@@ -9,6 +10,7 @@ export class UserController {
         const user_id = _.defaultTo(req.body.user_id, null);
         const email = _.defaultTo(req.body.email, null);
         const pass = _.defaultTo(req.body.pass, null);
+        const userType = _.defaultTo(req.body.userType, null);
 
         if (name == null) {
             res.status(406).send({ success_yn: false, msg: "닉네임을 입력해주세요" });
@@ -26,20 +28,30 @@ export class UserController {
             res.status(406).send({ success_yn: false, msg: "이메일을 입력해주세요" });
             return;
         }
+        if (userType == "ADMIN" || userType == "USER") {
+            res.status(406).send({ success_yn: false, msg: "이메일을 입력해주세요" });
+            return;
+        }
 
         try {
             const userService = new UserService();
             const data_AlreadyUser = await userService.existUser(user_id);
 
-            /*const asdf = await userService.getUserAll();
-            console.log(asdf);
-            console.log(asdf[0]);
-            console.log(_.get(asdf, 'dataValues'));*/
+
             if (data_AlreadyUser.length > 0) {
                 res.status(406).send({ success_yn: false, msg: "exist user" });
                 return;
             }
-
+            await userService.signup(
+                new UserCreateDto({
+                    user_id,
+                    pass,
+                    name,
+                    email,
+                    userType,
+                    joinDt: BigInt(Date.now())
+                })
+            );
 
             res.json({ success_yn: true, msg: "success" });
         } catch (error) {
