@@ -19,7 +19,6 @@ const getToken = (user_id = "dddd", privateKey = "asdf", expiresIn = 1000 * 60 *
 
 
 
-
 const isAuthenticated = async function (
     req: Request,
     res: Response,
@@ -117,8 +116,6 @@ const isAuthenticated = async function (
 
 
         const user_id = decoded.sub;
-        console.log(Date.now());
-        console.log(decoded.exp);
 
         if (Date.now() > decoded.exp) {
             res.status(401).send({ msg: "expired", code: "ACCESS_TOKEN_EXPIRED" });
@@ -168,7 +165,6 @@ const isAuthenticated = async function (
         }
     }
 
-    // req.decoded = decoded;
 
     next();
 };
