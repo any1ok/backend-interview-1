@@ -62,6 +62,8 @@ export class ProductService {
         sort_type: string;
         limit: number;
         offset: number;
+        max_price: number;
+        min_price: number;
     }) {
 
         const selectQuery1 = db.mybatisMapper.getStatement(
@@ -73,6 +75,8 @@ export class ProductService {
                 offset: value.offset,
                 limit: value.limit,
                 sort_type: value.sort_type,
+                max_price: value.max_price,
+                min_price: value.min_price,
             },
             { language: "sql", indent: "  " }
         );

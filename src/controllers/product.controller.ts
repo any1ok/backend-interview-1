@@ -56,7 +56,7 @@ export class ProductController {
             res.status(403).send({ success_yn: false, msg: "non auth" });
             return;
         }
-        const product_no = BigInt(req.params.id);
+        const product_no = BigInt(req.params.product_no);
         const product_nm = _.defaultTo(String(req.body.product_nm), null);
         const price = _.defaultTo(BigInt(req.body.price), null);
         const product_detail = _.defaultTo(String(req.body.product_detail), null);
@@ -97,7 +97,7 @@ export class ProductController {
             res.status(403).send({ success_yn: false, msg: "non auth" });
             return;
         }
-        const product_no = BigInt(req.params.id);
+        const product_no = BigInt(req.params.product_no);
 
         try {
             const productService = new ProductService();
@@ -118,7 +118,7 @@ export class ProductController {
             res.status(403).send({ success_yn: false, msg: "non auth" });
             return;
         }
-        const product_no = BigInt(req.params.id);
+        const product_no = BigInt(req.params.product_no);
 
         try {
             const productService = new ProductService();
@@ -140,7 +140,7 @@ export class ProductController {
             res.status(403).send({ success_yn: false, msg: "non auth" });
             return;
         }
-        const product_no = BigInt(req.params.id);
+        const product_no = BigInt(req.params.product_no);
 
         try {
             const dibsService = new ProductService();
@@ -171,17 +171,23 @@ export class ProductController {
         var page = _.defaultTo(Number(req.query.page), 1);
         var limit = _.defaultTo(Number(req.query.limit), 10);
         var offset = limit * (page - 1)
-
-
+        var page = _.defaultTo(Number(req.query.page), 1);
+        var max_price = _.defaultTo(Number(req.query.max_price), null);
+        var min_price = _.defaultTo(Number(req.query.min_price), null);
         if (!(sort_type == 'price' || sort_type == "product_nm" || sort_type == "join_dt")) {
-            res.status(406).send({ success_yn: false, msg: "bad param" });
+            res.status(406).send({ success_yn: false, msg: "bad param1" });
             return;
         }
         if (!(search_filter == 'color' || search_filter == "product_nm" || search_filter == "size")) {
-            res.status(406).send({ success_yn: false, msg: "bad param" });
+            res.status(406).send({ success_yn: false, msg: "bad param2" });
             return;
         }
-
+        if (max_price != null) {
+            if (min_price > max_price) {
+                res.status(401).send({ success_yn: false, msg: "bad param3" });
+                return;
+            }
+        }
         try {
             const productService = new ProductService();
 
@@ -191,6 +197,8 @@ export class ProductController {
                 sort_type,
                 limit,
                 offset,
+                max_price,
+                min_price,
             });
 
             res.json({ success_yn: true, msg: "success", data });

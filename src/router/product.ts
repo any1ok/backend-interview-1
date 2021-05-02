@@ -6,12 +6,12 @@ const router = Router()
 const controller = new ProductController();
 
 router.post("/insertproduct", controller.insertProduct);
-router.get("/getproduct/:id", controller.getProduct);
-router.put("/updateproduct/:id", controller.updateProduct);
-router.delete("/deleteproduct/:id", controller.deleteProduct);
+router.get("/getproduct/:product_no", controller.getProduct);
+router.put("/updateproduct/:product_no", controller.updateProduct);
+router.delete("/deleteproduct/:product_no", controller.deleteProduct);
 router.get("/product-list", controller.productList);
 
-router.post("/product/:id/heart", controller.heart);
+router.post("/product/:product_no/heart", controller.heart);
 
 
 

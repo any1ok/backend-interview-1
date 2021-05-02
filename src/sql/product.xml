@@ -21,6 +21,9 @@
     <if test = "search_text != null">
         and ${search_filter} like #{search_text}
     </if> 
+     <if test='max_price != null'>
+        AND PRICE BETWEEN #{min_price} AND #{max_price} 
+    </if>
     order by ${sort_type}
     limit #{limit} offset #{offset}
   </select>
