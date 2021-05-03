@@ -199,6 +199,7 @@ export class ProductController {
                 offset,
                 max_price,
                 min_price,
+                user_no
             });
 
             res.json({ success_yn: true, msg: "success", data });
