@@ -35,21 +35,21 @@ export class ProductService {
         });
 
         if (select_data) {
-            if (select_data.useYn == false) {
+            if (select_data.use_yn == false) {
                 await Heart.update(
-                    { useYn: true },
+                    { use_yn: true },
                     { where: { user_no, product_no } }
                 );
             }
             else {
                 await Heart.update(
-                    { useYn: false },
+                    { use_yn: false },
                     { where: { user_no, product_no } }
                 );
             }
         } else {
-            const dibs = new Heart({ user_no, product_no });
-            await dibs.save();
+            const heart = new Heart({ user_no, product_no });
+            await heart.save();
         }
 
         return;
@@ -78,7 +78,7 @@ export class ProductService {
                 sort_type: value.sort_type,
                 max_price: value.max_price,
                 min_price: value.min_price,
-                user_no: value.user_no,
+                user_no: value.user_no
             },
             { language: "sql", indent: "  " }
         );

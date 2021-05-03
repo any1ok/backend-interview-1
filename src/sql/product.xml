@@ -4,47 +4,50 @@
   
     <select id="productlist.SELECT">
   select
-        row_number() over(
-        order by ${sort_type}) as no
-      , D.product_no
-      , D.product_nm
-      , D.product_detail
-      , D.price
-      , D.brand
-      , D."size" 
-      , D.color
-      , D.heart_cnt
-      , D.join_dt
-      , D.TOTAL_CNT
+    row_number() over(
+      order by
+        price
+    ) as no,
+    D.product_no,
+    D.product_nm,
+    D.product_detail,
+    D.price,
+    D.brand,
+    D."size",
+    D.color,
+    D.heart_cnt,
+    D.join_dt,
+    D.TOTAL_CNT,
+    case when D.heart_yn is null then false else D.heart_yn end as heart_yn
   from
     (
-    select
-        A.PRODUCT_NO
-      , product_nm
-      , product_detail
-      , price
-      , brand
-      , size
-      , color
-      , count(B.user_no) as heart_cnt
-      , join_dt
-      , (
-        select
-                use_yn as heart_yn
-        from
+      select
+        A.PRODUCT_NO,
+        product_nm,
+        product_detail,
+        price,
+        brand,
+        size,
+        color,
+        count(B.user_no) as heart_cnt,
+        join_dt,
+        (
+          select
+            use_yn
+          from
             "Hearts" C
-        where
-            1=1
-            and user_no = #{user_no}
-            and C.product_no = A.product_no )
-      , COUNT(*) over() as TOTAL_CNT
-    from
-      "Products" A
-      left join "Hearts" B on
-      A.product_no = B.product_no
-    where
+          where
+            1 = 1
+            and user_no = '1'
+            and C.product_no = A.product_no
+        ) as heart_yn,
+        COUNT(*) over() as TOTAL_CNT
+      from
+        "Products" A
+        left join "Hearts" B on A.product_no = B.product_no
+      where
         1 = 1
-        and use_yn = true
+        and A.use_yn = true
     <if test = "search_text != null">
         and ${search_filter} like #{search_text}
     </if> 
