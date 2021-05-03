@@ -40,6 +40,11 @@ export class Review extends Model {
     @Column(DataType.TEXT)
     review_content: string;
 
+    @Comment("등록일자")
+    @AllowNull(false)
+    @Column
+    join_dt: bigint;
+
     @Comment("사용여부")
     @AllowNull(false)
     @Default(true)

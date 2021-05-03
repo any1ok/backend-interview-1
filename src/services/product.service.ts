@@ -1,6 +1,8 @@
 import { ProductCreateDto } from "../dtos/product.create.dto";
+import { ReviewCreateDto } from "../dtos/review.create.dto";
 import db from '../dbms/postgre'
 import { Product } from "../models/model.product";
+import { Review } from "../models/model.review";
 import { Heart } from "../models/model.heart";
 import { ProductUpdateDto } from "../dtos/product.update.dto";
 import { QueryTypes } from "sequelize";
@@ -53,6 +55,27 @@ export class ProductService {
         }
 
         return;
+    }
+
+    async createReview(value: ReviewCreateDto) {
+        const review = new Review({ ...value });
+        await review.save();
+        return;
+    }
+
+    async updateReview(review_no: bigint, review_content: string) {
+        return await Product.update(
+            { review_content },
+            { where: { review_no, use_yn: true } }
+        );
+    }
+
+    async reviewlist(product_no: bigint, user_no: bigint, mine: boolean) {
+        if (mine) {
+            return await Product.findAll({ where: { product_no, user_no, use_yn: true } });
+        } else {
+            return await Product.findAll({ where: { product_no, use_yn: true } });
+        }
     }
 
 

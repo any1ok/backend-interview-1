@@ -213,4 +213,90 @@ export class ProductController {
         }
     }
 
+    async insertReview(req: Request, res: Response, next: NextFunction) {
+        const user_no = BigInt(req.userItem.user_no)
+        if (user_no == null) {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
+        }
+
+        const product_no = _.defaultTo(String(req.body.product_no), null);
+        const review_content = _.defaultTo(String(req.body.review_content), null);
+
+        if (product_no == null || review_content == null) {
+            res.status(406).send({ success_yn: false, msg: "bad param" });
+            return;
+        }
+
+        try {
+            const productService = new ProductService();
+
+            const product = await productService.createReview({
+                user_no,
+                product_no,
+                review_content,
+                join_dt: BigInt(Date.now())
+            });
+
+            res.json({ success_yn: true, msg: "success" });
+        } catch (error) {
+            res.status(403).send({ success_yn: false, error: error });
+            console.log("query: error", error);
+            return;
+        }
+    }
+    //상품수정
+    async updateReview(req: Request, res: Response, next: NextFunction) {
+        const user_no = BigInt(req.userItem.user_no)
+        if (user_no == null) {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
+        }
+        const review_content = _.defaultTo(String(req.body.review_content), null);
+        const review_no = BigInt(req.params.review_no);
+
+
+        if (review_content == null || review_no == null) {
+            res.status(406).send({ success_yn: false, msg: "bad param" });
+            return;
+        }
+
+        try {
+            const productService = new ProductService();
+
+            await productService.updateReview(
+                review_no,
+                review_content,
+            );
+
+            res.json({ success_yn: true, msg: "success" });
+        } catch (error) {
+            res.status(403).send({ success_yn: false, error: error });
+            console.log("query: error", error);
+            return;
+        }
+    }
+    // 상품 디테일
+    async getReview(req: Request, res: Response, next: NextFunction) {
+        const user_no = BigInt(req.userItem.user_no)
+        if (user_no == null) {
+            res.status(403).send({ success_yn: false, msg: "non auth" });
+            return;
+        }
+        const product_no = BigInt(req.query.product_no);
+
+        const mine = _.defaultTo(Boolean(req.query.mine), false);
+        try {
+            const productService = new ProductService();
+
+            const product_data = await productService.reviewlist(user_no, product_no, mine);
+
+            res.json({ success_yn: true, msg: "success", product_data });
+        } catch (error) {
+            res.status(403).send({ success_yn: false, error: error });
+            console.log("query: error", error);
+            return;
+        }
+    }
+
 }

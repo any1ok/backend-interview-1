@@ -13,6 +13,10 @@ router.get("/product-list", controller.productList);
 
 router.post("/product/:product_no/heart", controller.heart);
 
+router.post("/insertreview", controller.insertReview);
+router.put("/updatereview/:review_no", controller.updateReview);
+router.get("/review-list", controller.getReview);
+
 
 
 
