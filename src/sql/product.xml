@@ -1,34 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="PRODUCT">  
-  <select id="productlist2.SELECT">
-    SELECT
-    row_number() over(order by ${sort_type}) as no ,
-    PRODUCT_NO,
-    product_nm,
-    product_detail,
-    price,
-    brand,
-    size,
-    color,
-    join_dt,
-    count(B.user_no) as heart_cnt, 
-    COUNT(*) OVER() AS TOTAL_CNT 
-    FROM
-        "Products" A left join "Hearts" B on A.product_no = B.product_no  
-    WHERE
-        1 = 1
-        and use_yn = true
-    <if test = "search_text != null">
-        and ${search_filter} like #{search_text}
-    </if> 
-     <if test='max_price != null'>
-        AND PRICE BETWEEN #{min_price} AND #{max_price} 
-    </if>
-    order by ${sort_type}
-    limit #{limit} offset #{offset}
-  </select>
-
+  
     <select id="productlist.SELECT">
   select
         row_number() over(

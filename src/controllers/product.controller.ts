@@ -201,8 +201,11 @@ export class ProductController {
                 min_price,
                 user_no
             });
-
-            res.json({ success_yn: true, msg: "success", data });
+            var total_cnt = 0;
+            if (data.length > 0) {
+                total_cnt = _.get(data[0], 'total_cnt');
+            }
+            res.json({ success_yn: true, msg: "success", data, total_cnt });
         } catch (error) {
             res.status(403).send({ success_yn: false, error: error });
             console.log("query: error", error);
